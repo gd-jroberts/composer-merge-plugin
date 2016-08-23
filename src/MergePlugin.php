@@ -122,6 +122,13 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     protected $loadedNoDev = array();
 
     /**
+     * Handlers that need to be called
+     *
+     * @var string[] $handlers
+     */
+    protected $handlers = array();
+
+    /**
      * {@inheritdoc}
      */
     public function activate(Composer $composer, IOInterface $io)
@@ -262,7 +269,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         }
 
         if ($this->state->shouldCallHandlers()) {
-            var_dump($package->getHandlers()); exit;
+            $this->state->handlers = $package->getHandlers();
         }
     }
 
@@ -361,9 +368,28 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
             $installer->run();
         }else{
-
             if ($this->state->shouldCallHandlers()){
+                $scripts = $this->state->handlers;
 
+                if (!empty($scripts)){
+                    foreach($scripts as $key => $script){
+                        $this->logger->info(
+                            '<comment>' .
+                            'Parsing ' . $key . ' commands ' .
+                            '</comment>'
+                        );
+                        if(!empty($script)){
+                            foreach($script as $cmd){
+                                $this->logger->info(
+                                    '<comment>' .
+                                    'Executing ' . $cmd .
+                                    '</comment>'
+                                );
+                                shell_exec($cmd);
+                            }
+                        }
+                    }
+                }
             }
         }
         // @codeCoverageIgnoreEnd
