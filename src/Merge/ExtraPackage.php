@@ -101,6 +101,16 @@ class ExtraPackage
     }
 
     /**
+     * Get list of handlers to execute.
+     *
+     * @return array
+     */
+    public function getHandlers()
+    {
+        return isset($this->json['scripts']) ? $this->json['scripts'] : array();
+    }
+
+    /**
      * Read the contents of a composer.json style file into an array.
      *
      * The package contents are fixed up to be usable to create a Package

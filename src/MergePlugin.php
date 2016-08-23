@@ -260,6 +260,10 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             $this->mergeFiles($package->getIncludes(), false);
             $this->mergeFiles($package->getRequires(), true);
         }
+
+        if ($this->state->shouldCallHandlers()) {
+            var_dump($package->getHandlers()); exit;
+        }
     }
 
     /**
@@ -356,6 +360,11 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             }
 
             $installer->run();
+        }else{
+
+            if ($this->state->shouldCallHandlers()){
+
+            }
         }
         // @codeCoverageIgnoreEnd
     }

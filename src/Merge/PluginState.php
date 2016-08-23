@@ -93,6 +93,12 @@ class PluginState
     protected $mergeExtraDeep = false;
 
     /**
+     * Whether to call the handlers registered in the included/required files
+     * @var bool $mergeHandlers
+     */
+    protected $callHandlers = false;
+
+    /**
      * @var bool $firstInstall
      */
     protected $firstInstall = false;
@@ -135,6 +141,7 @@ class PluginState
                 'merge-dev' => true,
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
+                'call-handlers' => false,
             ),
             isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
         );
@@ -148,6 +155,7 @@ class PluginState
         $this->mergeDev = (bool)$config['merge-dev'];
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
+        $this->callHandlers = (bool)$config['call-handlers'];
     }
 
     /**
@@ -363,6 +371,20 @@ class PluginState
     public function shouldMergeExtraDeep()
     {
         return $this->mergeExtraDeep;
+    }
+
+    /**
+     * Should the included/required handlers be called?
+     *
+     * By default the included/required handlers are ignored. When enabled this
+     * allows to call the handlers for select events as part of composer-merge-
+     * plugin's handling of the same event.
+     *
+     * @return bool
+     */
+    public function shouldCallHandlers()
+    {
+        return $this->callHandlers;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:
