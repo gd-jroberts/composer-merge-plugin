@@ -13,6 +13,7 @@ namespace Wikimedia\Composer;
 use Wikimedia\Composer\Merge\ExtraPackage;
 use Wikimedia\Composer\Merge\MissingFileException;
 use Wikimedia\Composer\Merge\PluginState;
+use Wikimedia\Composer\Merge\ExtraEvents;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
@@ -367,32 +368,38 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             }
 
             $installer->run();
-        }else{
-            if ($this->state->shouldCallHandlers()){
-                $scripts = $this->state->handlers;
+        }
 
-                if (!empty($scripts)){
-                    foreach($scripts as $key => $script){
-                        $this->logger->info(
-                            '<comment>' .
-                            'Parsing ' . $key . ' commands ' .
-                            '</comment>'
-                        );
-                        if(!empty($script)){
-                            foreach($script as $cmd){
-                                $this->logger->info(
-                                    '<comment>' .
-                                    'Executing ' . $cmd .
-                                    '</comment>'
-                                );
-                                shell_exec($cmd);
-                            }
+        if ($this->state->shouldCallHandlers()){
+            $this->callHandlers($event);
+        }
+        // @codeCoverageIgnoreEnd
+    }
+
+    public function callHandlers(ScriptEvent $event){
+        $scripts = $this->state->handlers;
+
+        if (!empty($scripts)){
+            foreach($scripts as $key => $script){
+                if($event->getName() == $key) {
+                    $this->logger->info(
+                        '<comment>' .
+                        'Parsing ' . $key . ' commands ' .
+                        '</comment>'
+                    );
+                    if (!empty($script)) {
+                        foreach ($script as $cmd) {
+                            $this->logger->info(
+                                '<comment>' .
+                                'Executing ' . $cmd .
+                                '</comment>'
+                            );
+                            shell_exec($cmd);
                         }
                     }
                 }
             }
         }
-        // @codeCoverageIgnoreEnd
     }
 }
 // vim:sw=4:ts=4:sts=4:et:
